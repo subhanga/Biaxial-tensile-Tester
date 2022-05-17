@@ -1,0 +1,149 @@
+import serial
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import MultipleLocator
+ 
+ 
+# function for plotting all the data points in the graph
+def show_all():
+    plt.clf()
+    plt.subplot(1, 2, 1)
+    axes = plt.subplot(1, 2, 1)
+    axes.axis([0, 4, 0, 100])
+    axes.xaxis.set_major_locator(MultipleLocator(0.50))
+    axes.yaxis.set_major_locator(MultipleLocator(10))
+    plt.xlabel("Displacement X")
+    plt.ylabel("Force X")
+    plt.title("Force X Vs Displacement X")
+    # plt.scatter(disp1_u,force1_u)
+    plt.plot(disp1_u, force1_u)
+    # plt.grid(True)
+    plt.subplot(1, 2, 2)
+    axes = plt.subplot(1, 2, 2)
+    axes.axis([0, 4, 0, 100])
+    axes.xaxis.set_major_locator(MultipleLocator(0.50))
+    axes.yaxis.set_major_locator(MultipleLocator(10))
+    plt.xlabel("Displacement Y")
+    plt.ylabel("Force Y")
+    plt.title("Force Y Vs Displacement Y")
+    # plt.scatter(disp2_u,force2_u)
+    plt.plot(disp2_u, force2_u)
+    plt.show()
+    # plt.grid(True)
+ 
+ 
+# starting the live plotting process
+plt.ion()
+fig = plt.figure(figsize=(10, 6))
+ 
+# making list to save the data
+force1 = list()
+disp1 = list()
+force1_u = list()
+disp1_u = list()
+ 
+force2 = list()
+disp2 = list()
+force2_u = list()
+disp2_u = list()
+speed = 0.0
+ 
+# making counting variables
+i = 0
+j = 0
+k = 0
+ 
+# here i used a variable called limit to call show_all90 function after 50 iterations(50 data came from the arduino)
+limit = 20
+ 
+# get data from the arduino
+ser = serial.Serial('/dev/cu.usbserial-14230', 9600)
+ser.close()
+ser.open()
+ 
+# here i used a variable which is called sample to set the number of data points show in one graph
+sample = 5  # YOU HAVE TO CHANGE THIS PART
+ 
+while True:
+ 
+    # you have to change this as which condition youcall the function
+    if k > limit:
+        show_all()
+        break
+ 
+    # plotting the live data
+    else:
+        plt.clf()
+        data = ser.readline()
+        dec = data.decode()
+        split = dec.split(",")
+ 
+        split[0] = float(split[0])
+        split[1] = float(split[1])
+        split[4] = float(split[4])
+        speed = split[4]
+ 
+        force1.append(split[0])
+        disp1.append(split[1])
+        force1_u.append(split[0])
+        disp1_u.append(split[1])
+ 
+        plt.subplot(1, 2, 1)
+        plt.grid(True)
+ 
+        if i > sample:
+            force1.pop(0)
+            disp1.pop(0)
+ 
+        axes = plt.subplot(1, 2, 1)
+        axes.axis([0, 4, 0, 120])
+        axes.xaxis.set_major_locator(MultipleLocator(0.5))
+        axes.yaxis.set_major_locator(MultipleLocator(10))
+        axes.annotate("Speed:", xy=(1.5, 110))
+        axes.annotate(str(speed), xy=(2.5, 110))
+ 
+        plt.xlabel("Displacement X")
+        plt.ylabel("Force X")
+        plt.title("Force X Vs Displacement Y ")
+        i += 1
+        # plt.scatter(disp1,force1)
+        plt.plot(disp1, force1)
+ 
+        split[2] = float(split[2])
+        split[3] = float(split[3])
+ 
+        force2.append(split[2])
+        disp2.append(split[3])
+        force2_u.append(split[2])
+        disp2_u.append(split[3])
+ 
+        plt.subplot(1, 2, 2)
+        plt.grid(True)
+ 
+        if j > sample:
+            force2.pop(0)
+            disp2.pop(0)
+ 
+        axes = plt.subplot(1, 2, 2)
+        axes.axis([0, 4, 0, 120])
+        axes.xaxis.set_major_locator(MultipleLocator(0.5))
+        axes.yaxis.set_major_locator(MultipleLocator(10))
+        axes.annotate("Speed:", xy=(1.5, 110))
+        axes.annotate(str(speed), xy=(2.5, 110))
+ 
+        plt.xlabel("Displacement Y")
+        plt.ylabel("Force Y")
+        plt.title("Force X Vs Displacement Y")
+        j += 1
+        # plt.scatter(disp2,force2)
+        plt.plot(disp2, force2)
+        plt.show()
+        plt.pause(0.0001)
+ 
+    k = k + 1
+    print(speed)
+ 
+ 
+ 
+ 
+
